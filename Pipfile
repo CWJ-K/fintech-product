@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+pandas = "*"
+jupyter = "*"
+ipykernel = "*"
+requests = "*"
+pydantic = "*"
+loguru = "*"
+jupyter-contrib-nbextensions = "*"
+flake8 = "*"
+pylint = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
