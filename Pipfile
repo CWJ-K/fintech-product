@@ -14,6 +14,7 @@ loguru = "*"
 jupyter-contrib-nbextensions = "*"
 flake8 = "*"
 pylint = "*"
+numpy = ">=1.2.1"
 
 [dev-packages]
 
