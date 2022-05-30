@@ -11,6 +11,7 @@ from json import JSONDecodeError
 import json
 
 import numpy as np
+from src.router import Router
 
 
 class Period:
@@ -184,7 +185,17 @@ def check_report(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def save_daily_report(date, report):
-    report.to_csv(f'taiwan_stock_exchange_{date}.csv', index=False)
+    db_router = Router()
+    try:
+        report.to_sql(
+            name='TaiwanStockPrice',
+            con=db_router.mysql_financialdata_conn,
+            if_exists='append',
+            index=False,
+            chunksize=1000
+        )
+    except Exception as e:
+        logger.info(e)
     
     
 def check_date(date):
@@ -217,8 +228,14 @@ def produce_daily_report(date):
             flag = False
             return pd.DataFrame()
 
+        
 def main(start_date, end_date):
     dates = Period(start_date, end_date).generate_dates_in_a_period()
     for date in dates:
         logger.info(f'start to product {date} report')
         produce_daily_report(date)
+
+        
+if __name__ == '__main__':
+    start_date, end_date = sys.argv[1:]
+    main(start_date, end_date)

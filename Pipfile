@@ -15,6 +15,9 @@ jupyter-contrib-nbextensions = "*"
 flake8 = "*"
 pylint = "*"
 numpy = ">=1.2.1"
+fintechproduct = {editable = true, path = "."}
+sqlalchemy = "*"
+pymysql = "*"
 
 [dev-packages]
 
