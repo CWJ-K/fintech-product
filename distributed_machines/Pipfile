@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+pandas = "*"
+jupyter = "*"
+ipykernel = "*"
+requests = "*"
+pydantic = "*"
+loguru = "*"
+jupyter-contrib-nbextensions = "*"
+flake8 = "*"
+pylint = "*"
+numpy = ">=1.2.1"
+fintechproduct = {editable = true, path = "."}
+sqlalchemy = "*"
+pymysql = "*"
+celery = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
