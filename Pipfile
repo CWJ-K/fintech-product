@@ -18,6 +18,7 @@ numpy = ">=1.2.1"
 fintechproduct = {editable = true, path = "."}
 sqlalchemy = "*"
 pymysql = "*"
+celery = "*"
 
 [dev-packages]
 
