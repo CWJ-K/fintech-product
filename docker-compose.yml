@@ -1,0 +1,37 @@
+version: '3.0'
+services:
+  crawler_twse:
+    image: web_crawler:1.0.1
+    hostname: 'twse'
+    command: pipenv run celery -A financialdata.tasks.worker worker --loglevel=info --concurrency=1 --hostname=%h -Q twse
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
+    networks:
+      - my_network
+    
+  crawler_tpex:
+    image: web_crawler:1.0.1
+    hostname: 'tpex'
+    command: pipenv run celery -A financialdata.tasks.worker worker --loglevel=info --concurrency=1 --hostname=%h -Q twse
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
+    networks:
+      - my_network
+    
+  crawler_taifex:
+    image: web_crawler:1.0.1
+    hostname: 'taifex'
+    command: pipenv run celery -A financialdata.tasks.worker worker --loglevel=info --concurrency=1 --hostname=%h -Q twse
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    external: true
+
+

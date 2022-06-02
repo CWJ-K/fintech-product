@@ -1,0 +1,15 @@
+version: '3.0'
+services:
+  scheduler:
+    image: web_crawler:1.0.1
+    hostname: 'twse'
+    command: pipenv run python financialdata/scheduler.py
+    restart: always
+    environment:
+      - TZ=Asiz/Taipei
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    external: true

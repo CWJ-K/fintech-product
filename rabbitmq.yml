@@ -10,7 +10,7 @@ services:
       RABBITMQ_DEFAULT_PASS: 'worker'
       RABBITMQ_DEFAULT_VHOST: '/'
     networks:
-      - dev
+      - my_network
 
   flower:
     image: mher/flower:0.9.5
@@ -20,7 +20,8 @@ services:
     depends_on:
       - rabbitmq
     networks:
-      - dev
+      - my_network
 
 networks:
-  dev:
+  my_network:
+    external: true

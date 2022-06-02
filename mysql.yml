@@ -13,25 +13,22 @@ services:
     volumes:
       - mysql:/var/lib/mysql
     networks:
-      - dev
+      - my_network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    restart: always
     links:
       - mysql:db
     ports:
-      - 80:80
+      - 8000:80
     depends_on:
       - mysql
     networks:
-      - dev
-    environment:
-      - PMA_HOST=mysql
+      - my_network
 
 networks:
-  dev:
+  my_network:
+    external: true
 
 volumes:
   mysql:
