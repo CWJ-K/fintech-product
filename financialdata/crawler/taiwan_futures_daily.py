@@ -1,45 +1,17 @@
 import datetime
 import io
-import sys
 import time
 import typing
 
 import pandas as pd
 import requests
-from loguru import logger
-from pydantic import BaseModel
-
-
-def gen_date_list(
-    start_date: str, end_date: str
-) -> typing.List[str]:
-    """建立時間列表, 用於爬取所有資料"""
-    start_date = (
-        datetime.datetime.strptime(
-            start_date, "%Y-%m-%d"
-        ).date()
-    )
-    end_date = (
-        datetime.datetime.strptime(
-            end_date, "%Y-%m-%d"
-        ).date()
-    )
-    days = (
-        end_date - start_date
-    ).days + 1
-    date_list = [
-        str(
-            start_date
-            + datetime.timedelta(
-                days=day
-            )
-        )
-        for day in range(days)
-    ]
-    return date_list
+from financialdata.schema.dataset import (
+    check_schema,
+)
 
 
 def futures_header():
+    """網頁瀏覽時, 所帶的 request header 參數, 模仿瀏覽器發送 request"""
     return {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
         "Accept-Encoding": "gzip, deflate, br",
@@ -61,45 +33,10 @@ def futures_header():
     }
 
 
-def crawler_futures(
-    date: str,
-) -> pd.DataFrame:
-    url = "https://www.taifex.com.tw/cht/3/futDataDown"
-    form_data = {
-        "down_type": "1",
-        "commodity_id": "all",
-        "queryStartDate": date.replace(
-            "-", "/"
-        ),
-        "queryEndDate": date.replace(
-            "-", "/"
-        ),
-    }
-    time.sleep(5)
-    
-    resp = requests.post(
-        url,
-        headers=futures_header(),
-        data=form_data,
-    )
-    if resp.ok:
-        if resp.content:
-            df = pd.read_csv(
-                io.StringIO(
-                    resp.content.decode(
-                        "big5"
-                    )
-                ),
-                index_col=False,
-            )
-    else:
-        return pd.DataFrame()
-    return df
-
-
 def colname_zh2en(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
+    """資料欄位轉換, 英文有助於接下來存入資料庫"""
     colname_dict = {
         "交易日期": "date",
         "契約": "FuturesID",
@@ -181,53 +118,101 @@ def clean_data(
     return df
 
 
-class TaiwanFuturesDaily(BaseModel):
-    date: str
-    FuturesID: str
-    ContractDate: str
-    Open: float
-    Max: float
-    Min: float
-    Close: float
-    Change: float
-    ChangePer: float
-    Volume: float
-    SettlementPrice: float
-    OpenInterest: int
-    TradingSession: str
-        
-        
-def check_schema(
-    df: pd.DataFrame,
+def crawler_futures(
+    date: str,
 ) -> pd.DataFrame:
-    df_dict = df.to_dict("records")
-    df_schema = [
-        TaiwanFuturesDaily(
-            **dd
-        ).__dict__
-        for dd in df_dict
-    ]
-    df = pd.DataFrame(df_schema)
-    return df
-
-
-def main(
-    start_date: str, end_date: str
-):
-    date_list = gen_date_list(
-        start_date, end_date
+    """期交所爬蟲"""
+    url = "https://www.taifex.com.tw/cht/3/futDataDown"
+    form_data = {
+        "down_type": "1",
+        "commodity_id": "all",
+        "queryStartDate": date.replace(
+            "-", "/"
+        ),
+        "queryEndDate": date.replace(
+            "-", "/"
+        ),
+    }
+    # 避免被期交所 ban ip, 在每次爬蟲時, 先 sleep 5 秒
+    time.sleep(5)
+    resp = requests.post(
+        url,
+        headers=futures_header(),
+        data=form_data,
     )
-    for date in date_list:
-        logger.info(date)
-        df = crawler_futures(date)
-        if len(df) > 0:
-            df = colname_zh2en(df)
-            df = clean_data(df)
-            df = check_schema(df)
-            df.to_csv(
-                f"taiwan_futures_price_{date}.csv",
-                index=False,
+    if resp.ok:
+        if resp.content:
+            df = pd.read_csv(
+                io.StringIO(
+                    resp.content.decode(
+                        "big5"
+                    )
+                ),
+                index_col=False,
             )
+    else:
+        return pd.DataFrame()
     return df
 
 
+def gen_parameter_list(
+    history: bool,
+) -> typing.Dict[str, typing.List[str]]:
+    """建立時間列表, 用於爬取所有資料, 這時有兩種狀況
+    1. 抓取歷史資料
+    2. 每日更新
+    因此, 爬蟲日期列表, 根據 history 參數進行判斷
+    """
+    if history:
+        # 1. 抓取歷史資料
+        start_date = "1999-01-01"
+    else:
+        # 2. 每日更新
+        start_date = str(
+            datetime.date.today()
+        )
+    start_date = (
+        datetime.datetime.strptime(
+            start_date, "%Y-%m-%d"
+        ).date()
+    )
+    end_date = datetime.date.today()
+    days = (
+        end_date - start_date
+    ).days + 1
+    parameter_list = [
+        dict(
+            date=str(
+                start_date
+                + datetime.timedelta(
+                    days=day
+                )
+            )
+        )
+        for day in range(days)
+    ]
+    return parameter_list
+
+
+def crawler(
+    parameter: typing.Dict[
+        str,
+        typing.List[
+            typing.Union[
+                str, int, float
+            ]
+        ],
+    ]
+) -> pd.DataFrame:
+    date = parameter.get("date", "")
+    df = crawler_futures(date)
+    # 欄位中英轉換
+    df = colname_zh2en(df.copy())
+    # 資料清理
+    df = clean_data(df.copy())
+    # # 檢查資料型態
+    df = check_schema(
+        df.copy(),
+        dataset="TaiwanFuturesDaily",
+    )
+    return df

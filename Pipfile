@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
+flask = "==1.0.0"
 pandas = "*"
 jupyter = "*"
 ipykernel = "*"
@@ -19,6 +19,7 @@ fintechproduct = {editable = true, path = "."}
 sqlalchemy = "*"
 pymysql = "*"
 celery = "*"
+pyjwt = "==1.7.1"
 
 [dev-packages]
 
