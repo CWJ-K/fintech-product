@@ -5,6 +5,11 @@ services:
     hostname: 'twse'
     command: pipenv run python financialdata/scheduler.py
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.crawler_scheduler == true]
     environment:
       - TZ=Asiz/Taipei
     networks:

@@ -41,7 +41,7 @@ def Update(
             )
         )
 
-    db.router.Router.close_connection()
+    db.router.close_connection()
 
 
 if __name__ == "__main__":

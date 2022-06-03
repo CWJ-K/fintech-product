@@ -6,6 +6,11 @@ services:
       - 8888:8888
     hostname: 'api'
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.api == true]
     environment:
       - TZ=Asia/Taipei
     networks:
