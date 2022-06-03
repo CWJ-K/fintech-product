@@ -23,6 +23,8 @@ pyjwt = "==1.7.1"
 fastapi = "==0.63.0"
 uvicorn = "==0.14.0"
 apscheduler = "*"
+pytest-cov = "==2.11.1"
+pytest-mock = "==3.5.1"
 
 [dev-packages]
 
