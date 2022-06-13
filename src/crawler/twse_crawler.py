@@ -183,20 +183,6 @@ def check_report(data: pd.DataFrame) -> pd.DataFrame:
     return results
 
 
-def save_daily_report(date, report):
-    db_router = Router()
-    try:
-        report.to_sql(
-            name='TaiwanStockPrice',
-            con=db_router.mysql_financialdata_conn,
-            if_exists='append',
-            index=False,
-            chunksize=1000
-        )
-    except Exception as e:
-        logger.info(e)
-    
-    
 def check_date(date):
     date = datetime.datetime.strptime(date, '%Y-%m-%d')
     weekday = date.weekday() + 1
@@ -214,7 +200,6 @@ def produce_daily_report(date):
             daily_raw_data = get_TWSE_daily_raw_data(date)
             daily_report = create_daily_report(daily_raw_data)
             report = check_report(daily_report)
-            save_daily_report(date, report)
             flag = False
             return report
             
