@@ -11,7 +11,6 @@ from json import JSONDecodeError
 import json
 
 import numpy as np
-from src.router import Router
 
 
 class Period:
@@ -227,15 +226,3 @@ def produce_daily_report(date):
             logger.info(f'date:{date} => no data if date is before 2004-02-11 or date is Sunday or Saturdy')
             flag = False
             return pd.DataFrame()
-
-        
-def main(start_date, end_date):
-    dates = Period(start_date, end_date).generate_dates_in_a_period()
-    for date in dates:
-        logger.info(f'start to product {date} report')
-        produce_daily_report(date)
-
-        
-if __name__ == '__main__':
-    start_date, end_date = sys.argv[1:]
-    main(start_date, end_date)
