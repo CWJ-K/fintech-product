@@ -6,16 +6,16 @@ from loguru import logger
 from sqlalchemy import engine
 
 
-def update2mysql_by_pandas(
+def update_data_to_mysql_by_pandas(
     df: pd.DataFrame,
     table: str,
-    mysql_conn: engine.base.Connection,
+    mysql_connection: engine.base.Connection,
 ):
     if len(df) > 0:
         try:
             df.to_sql(
                 name=table,
-                con=mysql_conn,
+                con=mysql_connection,
                 if_exists="append",
                 index=False,
                 chunksize=1000,
@@ -64,10 +64,7 @@ def build_df_update_sql(
         update_sql = build_update_sql(
             sub_df_columns, value
         )
-        # SQL 上傳資料方式
-        # DUPLICATE KEY UPDATE 意思是
-        # 如果有重複，就改用 update 的方式
-        # 避免重複上傳
+
         sql = """INSERT INTO `{}`({})VALUES ({}) ON DUPLICATE KEY UPDATE {}
             """.format(
             table,
@@ -85,14 +82,14 @@ def build_df_update_sql(
     return sql_list
 
 
-def update2mysql_by_sql(
+def update_data_to_mysql_by_sql(
     df: pd.DataFrame,
     table: str,
-    mysql_conn: engine.base.Connection,
+    mysql_connection: engine.base.Connection,
 ):
     sql = build_df_update_sql(table, df)
     commit(
-        sql=sql, mysql_conn=mysql_conn
+        sql=sql, mysql_connection=mysql_connection
     )
 
 
@@ -100,15 +97,15 @@ def commit(
     sql: typing.Union[
         str, typing.List[str]
     ],
-    mysql_conn: engine.base.Connection = None,
+    mysql_connection: engine.base.Connection = None,
 ):
     logger.info("commit")
     try:
-        trans = mysql_conn.begin()
+        trans = mysql_connection.begin()
         if isinstance(sql, list):
             for s in sql:
                 try:
-                    mysql_conn.execution_options(
+                    mysql_connection.execution_options(
                         autocommit=False
                     ).execute(
                         s
@@ -119,7 +116,7 @@ def commit(
                     break
 
         elif isinstance(sql, str):
-            mysql_conn.execution_options(
+            mysql_connection.execution_options(
                 autocommit=False
             ).execute(
                 sql
@@ -130,24 +127,14 @@ def commit(
         logger.info(e)
 
 
-def upload_data(
-    df: pd.DataFrame,
-    table: str,
-    mysql_conn: engine.base.Connection,
-):
-    if len(df) > 0:
-        # 直接上傳
-        if update2mysql_by_pandas(
-            df=df,
-            table=table,
-            mysql_conn=mysql_conn,
+def upload_data(data: pd.DataFrame, table: str, my_sql_connection: engine.base.Connection) -> None:
+    if len(data) > 0:
+        if update_data_to_mysql_by_pandas(
+            data=data, table=table, mysql_connection=my_sql_connection
         ):
             pass
         else:
-            # 如果有重複的資料
-            # 使用 SQL 語法上傳資料
-            update2mysql_by_sql(
-                df=df,
-                table=table,
-                mysql_conn=mysql_conn,
+            update_data_to_mysql_by_sql(
+                data= data, table=table, mysql_connection=my_sql_connection
             )
+        

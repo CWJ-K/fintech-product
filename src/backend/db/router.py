@@ -4,7 +4,6 @@ from typing import Callable
 from loguru import logger
 from sqlalchemy import engine
 from sqlalchemy.engine.base import Connection
-
 from src.backend.db import clients
 
 
@@ -43,19 +42,20 @@ def check_connect_alive(connect: Connection, connect_func: Callable):
 
 class Router:
     def __init__(self):
-        self._mysql_financialdata_conn = clients.get_mysql_financialdata_conn()
+        self._mysql_invest_connection = clients.get_mysql_invest_connection()
 
-    def check_mysql_financialdata_conn_alive(self):
-        self._mysql_financialdata_conn = check_connect_alive(
-            self._mysql_financialdata_conn,
-            clients.get_mysql_financialdata_conn,
+    def check_mysql_invest_connection_alive(self):
+        self._mysql_invest_connection = check_connect_alive(
+            self._mysql_invest_connection,
+            clients.get_mysql_invest_connection,
         )
-        return self._mysql_financialdata_conn
+        return self._mysql_invest_connection
 
     @property
-    def mysql_financialdata_conn(self):
-        return self.check_mysql_financialdata_conn_alive()
+    def mysql_invest_connection(self):
+        self.check_mysql_invest_connection_alive()
+        return self._mysql_invest_connection
 
     def close_connection(self):
-        self._mysql_financialdata_conn.close()
+        self._mysql_invest_connection.close()
 

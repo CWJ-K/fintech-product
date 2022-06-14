@@ -10,4 +10,4 @@ def crawler(crawler_name: str, date: str):
         importlib.import_module(f'src.crawler.{crawler_name}'),
         'produce_daily_report',
     )(date=date)
-    db.upload_data(data, crawler_name, db.router.mysql_financialdata_conn)
+    db.upload_data(data, crawler_name, db.router.mysql_invest_connection)

@@ -6,7 +6,7 @@ services:
     ports:
       - 3306:3306
     environment:
-      MYSQL_DATABASE: stock
+      MYSQL_DATABASE: invest
       MYSQL_USER: user
       MYSQL_PASSWORD: user
       MYSQL_ROOT_PASSWORD: root
