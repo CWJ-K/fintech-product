@@ -12,26 +12,38 @@ services:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - mysql:/var/lib/mysql
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.mysql == true]
     networks:
-      - dev
+      - my_network
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    restart: always
+    image: phpmyadmin/phpmyadmin:5.1.0
     links:
       - mysql:db
     ports:
-      - 80:80
+      - 8080:80
+    environment:
+      MYSQL_DATABASE: invest
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+      MYSQL_ROOT_PASSWORD: root
+      PMA_HOST: mysql
     depends_on:
       - mysql
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.mysql == true]
     networks:
-      - dev
-    environment:
-      - PMA_HOST=mysql
+      - my_networkdocker stack deploy --with-registry-auth -c 
 
 networks:
-  dev:
+  my_network:
 
 volumes:
   mysql:
