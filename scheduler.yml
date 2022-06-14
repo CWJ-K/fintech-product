@@ -1,0 +1,20 @@
+version: '3.0'
+services:
+  scheduler:
+    image: crawler:1.0.1
+    hostname: 'twse'
+    command: pipenv run python src/scheduler.py
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.crawler_scheduler == true]
+    environment:
+      - TZ=Asiz/Taipei
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    external: true
