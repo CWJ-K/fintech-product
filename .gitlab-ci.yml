@@ -1,9 +1,9 @@
-stages:          # List of stages for jobs, and their order of execution
+stages:      
   - test
   - build
   - deploy
 
-test-crawler:       # This job runs in the build stage, which runs first.
+test-crawler:     
   stage: test
   image: continuumio/miniconda3:4.3.27
   before_script:
