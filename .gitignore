@@ -3,3 +3,4 @@
 *.ipynb
 *TEST.py
 *local.ini
+__pycache__/
