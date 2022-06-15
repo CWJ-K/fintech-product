@@ -9,7 +9,7 @@ test-crawler:
   before_script:
     - pip install --upgrade pip
     - pip uninstall pipenv -y
-    - pip install pipenv==2022.4.20
+    - pip install pipenv==2020.6.2
     - pipenv sync
     - python3 genenv.py
   script:
