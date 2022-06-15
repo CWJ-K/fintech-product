@@ -3,6 +3,8 @@ stages:
   - build
   - deploy
 
+
+
 test-crawler:     
   stage: test
   image: continuumio/miniconda3:4.3.27
@@ -20,7 +22,7 @@ test-crawler:
 build-docker-image:
   stage: build
   before_script:
-    - docker login -u "louisekr" -p $(DOCKER_HUB_TOKEN)
+    - docker login -u "louisekr" -p ${DOCKER_HUB_TOKEN}
   script:
     - make build-image
     - make push-image
