@@ -1,4 +1,5 @@
 README.md
+pyproject.toml
 setup.py
 fintechproduct.egg-info/PKG-INFO
 fintechproduct.egg-info/SOURCES.txt
