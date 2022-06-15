@@ -7,7 +7,7 @@ test-crawler:
   stage: test
   image: continuumio/miniconda3:4.3.27
   before_script:
-    - pip install pipenv
+    - pip install --upgrade pip pipenv
     - pipenv sync
     - python3 genenv.py
   script:
