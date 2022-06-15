@@ -8,12 +8,42 @@ test-crawler:
   image: continuumio/miniconda3:4.3.27
   before_script:
     - pip install --upgrade pip
-    - pip uninstall pipenv -y
     - pip install pipenv==2020.6.2
     - pipenv sync
     - python3 genenv.py
   script:
     - pipenv run pytest --cov-report term-missing --cov-config=.coveragerc --cov=./src/ tests/
   only:
-      refs:
-        - merge_requests
+    refs:
+      - merge_requests
+
+build-docker-image:
+  stage: build
+  before_script:
+    - docker login -u "louisekr" -p $(DOCKER_HUB_TOKEN)
+  script:
+    - make build-image
+    - make push-image
+  tags:
+    - build_image
+  only:
+    - tags 
+  
+deploy-crawler:
+  stage: deploy
+  script:
+    - make deploy-crawler
+  tags:
+    - build_image
+  only:
+    - tags 
+  
+deploy-scheduler:
+    stage: deploy
+    script:
+      - make deploy-scheduler
+    tags:
+      - build_image
+    only:
+      - tags 
+
