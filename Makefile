@@ -1,3 +1,16 @@
+GIT_TAG := $(shell git describe --abbrev=0 --tags)
+
+build-image:
+	docker build -f Dockerfile -t louisekr/crawler:${GIT_TAG} .
+
+push-image:
+	docker push louisekr/crawler:${GIT_TAG}
+
+deploy-crawler:
+	GIT_TAG=${GIT_TAG} docker stack deploy --with-registry-auth -c crawler.yml financialdata
+
+deploy-scheduler:
+	GIT_TAG=$(GIT_TAG) docker stack deploy --with-registry-auth -c scheduler.yml financialdata
 
 create-mysql:
 	docker-compose -f mysql.yml up -d

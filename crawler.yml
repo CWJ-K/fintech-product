@@ -1,7 +1,7 @@
 version: '3.0'
 services:
   crawler_twse:
-    image: crawler:1.0.1
+    image: louisekr/crawler:${GIT_TAG}
     hostname: 'twse'
     command: pipenv run celery -A src.tasks.worker worker --loglevel=info --concurrency=1 --hostname=%h -Q twse_crawler
     restart: always
