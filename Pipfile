@@ -19,6 +19,7 @@ fintechproduct = {editable = true, path = "."}
 sqlalchemy = "*"
 pymysql = "*"
 celery = "*"
+apscheduler = "*"
 
 [dev-packages]
 
