@@ -1,0 +1,17 @@
+stages:          # List of stages for jobs, and their order of execution
+  - test
+  - build
+  - deploy
+
+test-crawler:       # This job runs in the build stage, which runs first.
+  stage: test
+  image: continuumio/miniconda3:4.3.27
+  before_script:
+    - pip install pipenv
+    - pipenv sync
+    - python3 genenv.py
+  script:
+    - pipenv run pytest --cov-report term-missing --cov-config=.coveragerc --cov=./src/ tests/
+  only:
+      refs:
+        - merge_requests
