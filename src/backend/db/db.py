@@ -7,13 +7,13 @@ from sqlalchemy import engine
 
 
 def update_data_to_mysql_by_pandas(
-    df: pd.DataFrame,
+    data: pd.DataFrame,
     table: str,
     mysql_connection: engine.base.Connection,
 ):
-    if len(df) > 0:
+    if len(data) > 0:
         try:
-            df.to_sql(
+            data.to_sql(
                 name=table,
                 con=mysql_connection,
                 if_exists="append",
@@ -43,10 +43,10 @@ def build_update_sql(
     return update_sql
 
 
-def build_df_update_sql(
+def build_dataframe_update_to_sql(
     table: str, df: pd.DataFrame
 ) -> typing.List[str]:
-    logger.info("build_df_update_sql")
+    logger.info("build_dataframe_update_to_sql")
     df_columns = list(df.columns)
     sql_list = []
     for i in range(len(df)):
@@ -87,7 +87,7 @@ def update_data_to_mysql_by_sql(
     table: str,
     mysql_connection: engine.base.Connection,
 ):
-    sql = build_df_update_sql(table, df)
+    sql = build_dataframe_update_to_sql(table, df)
     commit(
         sql=sql, mysql_connection=mysql_connection
     )
