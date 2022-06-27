@@ -23,6 +23,8 @@ apscheduler = "*"
 pytest = "==6.2.4"
 pytest-cov = "==2.11.1"
 pytest-mock = "==3.5.1"
+tqdm = "*"
+wget = "*"
 
 [dev-packages]
 

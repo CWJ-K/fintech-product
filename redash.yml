@@ -1,0 +1,100 @@
+version: "3.8"
+
+x-environment: &redash-environment
+  PYTHONUNBUFFERED: 0
+  REDASH_LOG_LEVEL: INFO
+  REDASH_REDIS_URL: redis://redis:6379/0
+  POSTGRES_PASSWORD: postgres_password
+  REDASH_COOKIE_SECRET: redash_cookie_secret
+  REDASH_SECRET_KEY: redash_secret_key
+  REDASH_DATABASE_URL: postgresql://postgres:postgres_password@postgres/postgres
+  REDASH_ADDITIONAL_QUERY_RUNNERS: redash.query_runner.python
+
+x-redash-service: &redash-service
+  image: redash/redash:8.0.0.b32245
+  depends_on:
+    - postgres
+    - redis
+  networks:
+    - my_network
+
+services:
+  redash:
+    <<: *redash-service
+    restart: always
+    command: server
+    ports:
+      - target: 5000
+        published: 5000
+        mode: host
+    environment: 
+      <<: *redash-environment
+      REDASH_WEB_WORKERS: 1
+
+  create_table:
+    <<: *redash-service
+    command: python /app/manage.py database create_tables
+    environment: 
+      <<: *redash-environment
+      REDASH_WEB_WORKERS: 1
+
+  scheduler:
+    <<: *redash-service
+    restart: always
+    command: scheduler
+    environment:
+      <<: *redash-environment
+      QUEUES: "celery"
+      WORKERS_COUNT: 1
+  
+  scheduled_worker:
+    <<: *redash-service
+    restart: always
+    command: worker
+    environment:
+      <<: *redash-environment
+      QUEUES: "scheduled_queries,schemas"
+      WORKERS_COUNT: 1
+
+  adhoc_worker:
+    <<: *redash-service
+    restart: always
+    command: worker
+    environment:
+      <<: *redash-environment
+      QUEUES: "queries"
+      WORKERS_COUNT: 2
+
+  redis:
+    image: redis:5.0
+    restart: always
+    volumes:
+      - redis-redash:/bitnami/redis/data
+    networks:
+        - my_network
+
+  postgres:
+    image: postgres:9.6-alpine
+    environment:
+      <<: *redash-environment
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    restart: always
+    networks:
+        - my_network
+
+  nginx:
+    image: redash/nginx:latest
+    depends_on:
+      - redash
+    restart: always
+    networks:
+        - my_network
+
+networks:
+  my_network:
+    external: true
+
+volumes:
+  postgres:
+  redis-redash:

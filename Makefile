@@ -37,4 +37,6 @@ gen-release-env-variable:
 
 run-scheduler:
 	pipenv run python scheduler.py
-	
+
+deploy-redash:
+	docker stack deploy -c redash.yml redash
